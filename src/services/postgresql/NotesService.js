@@ -32,7 +32,10 @@ class NotesService {
 
   async getNotes(owner) {
     const query = {
-      text: 'SELECT * FROM notes WHERE owner = $1',
+      text: `SELECT notes.* FROM notes
+        LEFT JOIN collaborations ON collaborations."noteId" = notes.id
+        WHERE notes.owner = $1 OR collaborations."userId" = $1
+        GROUP BY notes.id`,
       values: [owner],
     };
 
@@ -42,7 +45,10 @@ class NotesService {
 
   async getNoteById(id) {
     const query = {
-      text: 'SELECT * FROM notes WHERE id = $1',
+      text: `SELECT notes.*, users.username
+        FROM notes
+        LEFT JOIN users ON users.id = notes.owner
+        WHERE notes.id = $1`,
       values: [id],
     };
 
